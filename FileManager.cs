@@ -9,28 +9,27 @@ namespace ShareMe
 {
     public static class FileManager
     {
-        private const string StorageFolder = "i";
-        
-        public async static Task<string> WriteFile(string fileExtension, IFormFile file)
+        public async static Task<string> WriteFile(string fileExtension, IFormFile file, string uploadFolder)
         {
-            EnsureDirectory();
+            EnsureDirectory(uploadFolder);
 
+            // Generate a file name, keep going if you get a collision with an existing file
             string fileName = string.Empty;
             do
             {
                 fileName = $"{RandomGenerator.GetRandomString(7)}.{fileExtension}";
-            } while (File.Exists(Path.Combine(DirectoryPath, $"{fileName}.{fileExtension}")));
+            } while (File.Exists(Path.Combine(DirectoryPath(uploadFolder), $"{fileName}.{fileExtension}")));
 
             try
             {
-                string fullFilePath = Path.Combine(DirectoryPath, fileName);
+                string systemFilePath = Path.Combine(DirectoryPath(uploadFolder), fileName);
 
-                using (var stream = File.Create(fullFilePath))
+                using (var stream = File.Create(systemFilePath))
                 {
                     await file.CopyToAsync(stream);
                 }
 
-                return $"/{StorageFolder}/{fileName}";
+                return fileName;
             }
             catch (Exception)
             {
@@ -39,11 +38,11 @@ namespace ShareMe
             }
         }
 
-        private static string DirectoryPath => Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", StorageFolder);
+        private static string DirectoryPath(string uploadFolder) => Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", uploadFolder);
 
-        private static void EnsureDirectory()
+        private static void EnsureDirectory(string uploadFolder)
         {
-            Directory.CreateDirectory(DirectoryPath);
+            Directory.CreateDirectory(DirectoryPath(uploadFolder));
         }
     }
 }

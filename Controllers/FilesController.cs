@@ -2,48 +2,61 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ShareMe.Controllers
 {
     public class FilesController : Controller
     {
+        private readonly IOptions<AppSettings> _appSettings;
+
+        public FilesController(IOptions<AppSettings> appSettings)
+        {
+            _appSettings = appSettings;
+        }
+
         // POST api/files
         [Route("api/upload")]
         [HttpPost]
         public async Task<string> Post(string token)
-        {
+        {            
             if (string.IsNullOrWhiteSpace(token))
             {
                 return ReturnMessage.ErrorMessage("token not supplied");
             }
 
-            if (TokenManager.HasToken(token) && Request.HasFormContentType)
+            if (Request.HasFormContentType)
             {
-                try
+                if (TokenManager.HasToken(token))
                 {
-                    foreach (var file in Request.Form.Files)
+                    try
                     {
-                        string fileExtension;
-                        string[] fileSplit = file.FileName.Split('.');
-
-                        if (fileSplit.Length > 1)
+                        foreach (var file in Request.Form.Files)
                         {
-                            fileExtension = fileSplit.Last();
-                        }
-                        else
-                        {
-                            fileExtension = string.Empty;
-                        }
+                            string fileExtension;
+                            string[] fileSplit = file.FileName.Split('.');
 
-                        string hostUrl = Environment.GetEnvironmentVariable("SHAREME_HOST_URL");
-                        string filePath = await FileManager.WriteFile(fileExtension, file);
-                        return ReturnMessage.OkFileUploaded("file uploaded", hostUrl + filePath);
+                            if (fileSplit.Length > 1)
+                            {
+                                fileExtension = fileSplit.Last();
+                            }
+                            else
+                            {
+                                fileExtension = string.Empty;
+                            }
+                            
+                            string filePath = await FileManager.WriteFile(fileExtension, file);
+                            return ReturnMessage.OkFileUploaded("file uploaded", _appSettings.Value.HostUrl + filePath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        return ReturnMessage.ErrorMessage(e.Message);
                     }
                 }
-                catch (Exception)
+                else
                 {
-
-                    throw;
+                    return ReturnMessage.ErrorMessage("unauthorised: invalid token");
                 }
             }
 

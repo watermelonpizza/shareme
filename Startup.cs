@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace shareme
+namespace ShareMe
 {
     public class Startup
     {
@@ -27,6 +27,16 @@ namespace shareme
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions();
+            services.Configure<AppSettings>(Configuration);
+
+            services.Configure<AppSettings>(config =>
+            {
+                config.HostUrl = Configuration["SHAREME_HOST_URL"] ?? config.HostUrl;
+                config.AdminKey = Configuration["SHAREME_ADMIN_KEY"] ?? config.AdminKey;
+                config.UploadFolder = Configuration["SHAREME_UPLOAD_FOLDER"] ?? config.UploadFolder;
+            });
+
             // Add framework services.
             services.AddMvc();
         }

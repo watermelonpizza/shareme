@@ -33,7 +33,7 @@ namespace ShareMe
             string error;
             if (!LoadTokens(out error))
             {
-                Console.WriteLine(error);
+                Console.Error.WriteLine(error);
             }
         }
 
@@ -44,7 +44,7 @@ namespace ShareMe
         {
             try
             {
-                File.WriteAllText("tokens.json", JsonConvert.SerializeObject(new TokenFile(tokens)));
+                File.WriteAllText("tokens.json", JsonConvert.SerializeObject(new TokenFile(tokens), Program.JsonSettings));
                 return true;
             }
             catch (Exception)
@@ -85,7 +85,8 @@ namespace ShareMe
                 }
                 else
                 {
-                    error = "tokens.json file either corrupted or missing";
+                    error = "tokens.json file either corrupted or missing, generating new one";
+                    SaveTokens();
                     return false;
                 }
             }

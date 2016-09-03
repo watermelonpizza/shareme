@@ -17,6 +17,7 @@
   <ItemGroup>
     <DnxInvisibleFolder Include=".git\" />
     <DnxInvisibleFolder Include=".vscode\" />
+    <DnxInvisibleFolder Include=".vs\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\DotNet.Web\Microsoft.DotNet.Web.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

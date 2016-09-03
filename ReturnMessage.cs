@@ -9,12 +9,6 @@ namespace ShareMe
 {
     public class ReturnMessage
     {
-        private static JsonSerializerSettings jsonSettings = new JsonSerializerSettings
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
         public bool Ok { get; private set; }
         public string Error { get; private set; }
         public string Warning { get; private set; }
@@ -29,7 +23,7 @@ namespace ShareMe
                     Message = message,
                     FileUrl = fileUrl
                 }, 
-                jsonSettings);
+                Program.JsonSettings);
 
         public static string OkTokenMessage(string message, string token)
             => JsonConvert.SerializeObject(new ReturnMessage
@@ -38,7 +32,7 @@ namespace ShareMe
                     Message = message,
                     Token = token
                 },
-                jsonSettings);
+                Program.JsonSettings);
 
         public static string WarningMessage(string warning)
             => JsonConvert.SerializeObject(new ReturnMessage
@@ -46,7 +40,7 @@ namespace ShareMe
                     Ok = true,
                     Warning = warning
                 },
-                jsonSettings);
+                Program.JsonSettings);
 
         public static string ErrorMessage(string error)
             => JsonConvert.SerializeObject(new ReturnMessage
@@ -54,6 +48,6 @@ namespace ShareMe
                     Ok = false,
                     Error = error
                 },
-                jsonSettings);
+                Program.JsonSettings);
     }
 }
