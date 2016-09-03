@@ -11,5 +11,6 @@ namespace ShareMe
         public string UploadFolder { get; set; }
         public string ImageHostDirectory { get; set; }
         public string AdminKey { get; set; }
+        public string[] ExtensionBlacklist { get; set; }
     }
 }

@@ -35,6 +35,7 @@ namespace ShareMe
                 config.HostUrl = Configuration["SHAREME_HOST_URL"] ?? config.HostUrl;
                 config.AdminKey = Configuration["SHAREME_ADMIN_KEY"] ?? config.AdminKey;
                 config.UploadFolder = Configuration["SHAREME_UPLOAD_FOLDER"] ?? config.UploadFolder;
+                config.ExtensionBlacklist = Configuration["SHAREME_EXTENSION_BLACKLIST"]?.Split(',') ?? config.ExtensionBlacklist;
             });
 
             // Add framework services.

@@ -13,16 +13,16 @@ namespace ShareMe
         public string Error { get; private set; }
         public string Warning { get; private set; }
         public string Message { get; private set; }
-        public string FileUrl { get; private set; }
+        public string[] FileUrls { get; private set; }
         public string Token { get; private set; }
 
-        public static string OkFileUploaded(string message, string fileUrl)
+        public static string OkFileUploaded(string message, string[] fileUrls)
             => JsonConvert.SerializeObject(new ReturnMessage
                 {
                     Ok = true,
                     Message = message,
-                    FileUrl = fileUrl
-                }, 
+                    FileUrls = fileUrls
+                },
                 Program.JsonSettings);
 
         public static string OkTokenMessage(string message, string token)

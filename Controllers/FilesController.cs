@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace ShareMe.Controllers
 {
@@ -31,23 +32,21 @@ namespace ShareMe.Controllers
                 {
                     try
                     {
+                        List<string> fileUrls = new List<string>();
                         foreach (var file in Request.Form.Files)
                         {
-                            string fileExtension;
-                            string[] fileSplit = file.FileName.Split('.');
-
-                            if (fileSplit.Length > 1)
-                            {
-                                fileExtension = fileSplit.Last();
-                            }
-                            else
-                            {
-                                fileExtension = string.Empty;
-                            }
+                            string fileExtension = file.FileName.Split('.').Last();
                             
-                            string filePath = await FileManager.WriteFile(fileExtension, file);
-                            return ReturnMessage.OkFileUploaded("file uploaded", _appSettings.Value.HostUrl + filePath);
+                            if (_appSettings.Value.ExtensionBlacklist.Contains(fileExtension))
+                            {
+                                return ReturnMessage.ErrorMessage($"upload rejected because of blacklisted file extension on {file.FileName}");
+                            }
+
+                            string fileName = await FileManager.WriteFile(fileExtension, file, _appSettings.Value.UploadFolder);
+                            fileUrls.Add(_appSettings.Value.HostUrl + _appSettings.Value.ImageHostDirectory + fileName);
                         }
+
+                        return ReturnMessage.OkFileUploaded("file uploaded", fileUrls.ToArray());
                     }
                     catch (Exception e)
                     {
