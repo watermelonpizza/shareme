@@ -1,0 +1,8 @@
+stages:
+  - deploy
+
+push to github:
+  stage: deploy
+  image: watermelonpizza/git
+  script:
+    - git push -q --mirror https://$GITHUB_TOKEN@github.com/$GIT_REPO.git
