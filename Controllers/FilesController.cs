@@ -28,7 +28,7 @@ namespace ShareMe.Controllers
 
             if (Request.HasFormContentType)
             {
-                if (TokenManager.HasToken(token))
+                if (_appSettings.Value.AdminKey.Equals(token) || TokenManager.HasToken(token))
                 {
                     try
                     {

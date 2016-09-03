@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ShareMe.Models;
+using Microsoft.Extensions.Options;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,6 +13,13 @@ namespace ShareMe.Controllers
     [Route("api/[controller]")]
     public class TokenController : Controller
     {
+        private readonly IOptions<AppSettings> _appSettings;
+
+        public TokenController(IOptions<AppSettings> appSettings)
+        {
+            _appSettings = appSettings;
+        }
+
         // POST api/token
         [HttpPost]
         public string Post(string token, string newToken, string comment)
@@ -21,7 +29,7 @@ namespace ShareMe.Controllers
                 return ReturnMessage.ErrorMessage("token not supplied");
             }
 
-            if (!TokenManager.AdminToken.Equals(token))
+            if (!_appSettings.Value.AdminKey.Equals(token))
             {
                 return ReturnMessage.ErrorMessage("unauthorised access, only admin token can be used to create tokens");
             }
@@ -47,7 +55,7 @@ namespace ShareMe.Controllers
         [HttpDelete("{token}")]
         public string Delete(string token)
         {
-            if (TokenManager.AdminToken.Equals(token))
+            if (_appSettings.Value.AdminKey.Equals(token))
             {
                 return ReturnMessage.ErrorMessage("you can't delete the admin token!");
             }

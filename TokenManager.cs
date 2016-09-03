@@ -16,13 +16,6 @@ namespace ShareMe
         private static RandomNumberGenerator rand = RandomNumberGenerator.Create();
         private static List<Token> tokens = new List<Token>();
 
-        private static string adminToken;
-
-        public static string AdminToken
-        {
-            get { return adminToken; }
-        }
-
         public static IReadOnlyList<Token> Tokens
         {
             get { return tokens; }
@@ -37,8 +30,8 @@ namespace ShareMe
             }
         }
 
-        public static bool HasToken(string token)
-            => adminToken.Equals(token) || tokens.Any(t => t.Key.Equals(token));
+        public static bool HasToken(string token) 
+            => tokens.Any(t => t.Key.Equals(token));
 
         public static bool SaveTokens()
         {
@@ -55,21 +48,6 @@ namespace ShareMe
 
         public static bool LoadTokens(out string error)
         {
-            try
-            {
-                adminToken = Environment.GetEnvironmentVariable("SHAREME_ADMIN_TOKEN");
-                if (string.IsNullOrWhiteSpace(adminToken))
-                {
-                    error = "You must supply the environment variable SHAREME_ADMIN_TOKEN";
-                    return false;
-                }
-            }
-            catch (SecurityException e)
-            {
-                error = e.Message;
-                return false;
-            }
-
             try
             {
                 if (File.Exists("tokens.json"))
