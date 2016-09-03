@@ -20,7 +20,7 @@ namespace ShareMe.Controllers
         [Route("api/upload")]
         [HttpPost]
         public async Task<string> Post(string token)
-        {            
+        {
             if (string.IsNullOrWhiteSpace(token))
             {
                 return ReturnMessage.ErrorMessage("token not supplied");
@@ -43,7 +43,7 @@ namespace ShareMe.Controllers
                             }
 
                             string fileName = await FileManager.WriteFile(fileExtension, file, _appSettings.Value.UploadFolder);
-                            fileUrls.Add(_appSettings.Value.HostUrl + _appSettings.Value.ImageHostDirectory + fileName);
+                            fileUrls.Add($"{_appSettings.Value.HostUrl}/{_appSettings.Value.UploadFolder}/{fileName}");
                         }
 
                         return ReturnMessage.OkFileUploaded("file uploaded", fileUrls.ToArray());
