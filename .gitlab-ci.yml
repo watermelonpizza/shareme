@@ -1,5 +1,13 @@
 stages:
+  - build
   - deploy
+
+dotnet:
+  stage: build
+  image: microsoft/dotnet:latest
+  script:
+    - dotnet restore
+	- dotnet build
 
 push to github:
   stage: deploy
