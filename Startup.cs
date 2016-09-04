@@ -38,8 +38,8 @@ namespace ShareMe
             {
                 config.HostUrl = Configuration["SHAREME_HOST_URL"] ?? config.HostUrl;
                 config.AdminKey = Configuration["SHAREME_ADMIN_KEY"] ?? config.AdminKey;
-                config.UploadFolder = Configuration["SHAREME_UPLOAD_FOLDER"] ?? config.UploadFolder;
-                config.FileRequestPath = Configuration["SHAREME_FILE_REQUEST_PATH"] ?? config.FileRequestPath;
+                config.UploadFolder = Configuration["SHAREME_UPLOAD_FOLDER"]?.Trim() ?? config.UploadFolder;
+                config.FileRequestPath = Configuration["SHAREME_FILE_REQUEST_PATH"]?.Trim() ?? config.FileRequestPath;
                 config.ExtensionBlacklist = Configuration["SHAREME_EXTENSION_BLACKLIST"]?.Split(',') ?? config.ExtensionBlacklist;
             });
 
