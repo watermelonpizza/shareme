@@ -9,20 +9,20 @@ namespace ShareMe
 {
     public static class FileManager
     {
-        public async static Task<string> WriteFile(string fileExtension, IFormFile file, string uploadFolder)
+        public async static Task<string> WriteFile(string fileExtension, IFormFile file, string physicalUploadPath)
         {
-            EnsureDirectory(uploadFolder);
+            EnsureDirectory(physicalUploadPath);
 
             // Generate a file name, keep going if you get a collision with an existing file
             string fileName = string.Empty;
             do
             {
                 fileName = $"{RandomGenerator.GetRandomString(7)}.{fileExtension}";
-            } while (File.Exists(Path.Combine(DirectoryPath(uploadFolder), $"{fileName}.{fileExtension}")));
+            } while (File.Exists(Path.Combine(physicalUploadPath, $"{fileName}.{fileExtension}")));
 
             try
             {
-                string systemFilePath = Path.Combine(DirectoryPath(uploadFolder), fileName);
+                string systemFilePath = Path.Combine(physicalUploadPath, fileName);
 
                 using (var stream = File.Create(systemFilePath))
                 {
@@ -37,12 +37,10 @@ namespace ShareMe
                 throw;
             }
         }
-
-        private static string DirectoryPath(string uploadFolder) => Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", uploadFolder);
-
-        private static void EnsureDirectory(string uploadFolder)
+        
+        public static void EnsureDirectory(string uploadFolder)
         {
-            Directory.CreateDirectory(DirectoryPath(uploadFolder));
+            Directory.CreateDirectory(uploadFolder);
         }
     }
 }

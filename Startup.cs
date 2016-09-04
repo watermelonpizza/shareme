@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace ShareMe
 {
@@ -35,6 +39,7 @@ namespace ShareMe
                 config.HostUrl = Configuration["SHAREME_HOST_URL"] ?? config.HostUrl;
                 config.AdminKey = Configuration["SHAREME_ADMIN_KEY"] ?? config.AdminKey;
                 config.UploadFolder = Configuration["SHAREME_UPLOAD_FOLDER"] ?? config.UploadFolder;
+                config.FileRequestPath = Configuration["SHAREME_FILE_REQUEST_PATH"] ?? config.FileRequestPath;
                 config.ExtensionBlacklist = Configuration["SHAREME_EXTENSION_BLACKLIST"]?.Split(',') ?? config.ExtensionBlacklist;
             });
 
@@ -43,12 +48,20 @@ namespace ShareMe
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IOptions<AppSettings> options)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseMvc().UseStaticFiles();
+            FileManager.EnsureDirectory(options.Value.PhysicalUploadPath);
+
+            app.UseMvc()
+               .UseStaticFiles()
+               .UseStaticFiles(new StaticFileOptions()
+               {
+                   FileProvider = new PhysicalFileProvider(options.Value.PhysicalUploadPath),
+                   RequestPath = new PathString(options.Value.FileRequestPath)
+               });
         }
     }
 }

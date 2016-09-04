@@ -42,8 +42,9 @@ namespace ShareMe.Controllers
                                 return ReturnMessage.ErrorMessage($"upload rejected because of blacklisted file extension on {file.FileName}");
                             }
 
-                            string fileName = await FileManager.WriteFile(fileExtension, file, _appSettings.Value.UploadFolder);
-                            fileUrls.Add($"{_appSettings.Value.HostUrl}/{_appSettings.Value.UploadFolder}/{fileName}");
+                            string fileName = await FileManager.WriteFile(fileExtension, file, _appSettings.Value.PhysicalUploadPath);
+                            
+                            fileUrls.Add($"{_appSettings.Value.HostUrl}{_appSettings.Value.FileRequestPath}/{fileName}");
                         }
 
                         return ReturnMessage.OkFileUploaded("file uploaded", fileUrls.ToArray());
