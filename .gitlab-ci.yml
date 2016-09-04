@@ -7,7 +7,7 @@ dotnet:
   image: microsoft/dotnet:latest
   script:
     - dotnet restore
-	- dotnet build
+    - dotnet build
 
 push to github:
   stage: deploy
