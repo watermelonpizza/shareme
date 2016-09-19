@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.WebUtilities;
+using System.IO;
 
 namespace ShareMe.Controllers
 {
@@ -26,7 +28,37 @@ namespace ShareMe.Controllers
                 return ReturnMessage.ErrorMessage("token not supplied");
             }
 
-            if (Request.HasFormContentType)
+            if (IsMultipartContentType(Request.ContentType))
+            {
+                var boundary = GetBoundary(Request.ContentType);
+                var reader = new MultipartReader(boundary, Request.Body);
+                var section = await reader.ReadNextSectionAsync();
+                string fileName = null;
+
+                while (section != null)
+                {
+                    // process each image
+                    const int chunkSize = 1024;
+                    var buffer = new byte[chunkSize];
+                    var bytesRead = 0;
+                    fileName = GetFileName(section.ContentDisposition);
+
+                    using (var stream = new FileStream(fileName, FileMode.Append))
+                    {
+                        do
+                        {
+                            bytesRead = await section.Body.ReadAsync(buffer, 0, buffer.Length);
+                            stream.Write(buffer, 0, bytesRead);
+
+                        } while (bytesRead > 0);
+                    }
+
+                    section = await reader.ReadNextSectionAsync();
+                }
+
+                return ReturnMessage.OkFileUploaded("file uploaded", new string[] { fileName });
+            }
+            else if (Request.HasFormContentType)
             {
                 if (_appSettings.Value.AdminKey.Equals(token) || TokenManager.HasToken(token))
                 {
@@ -67,6 +99,37 @@ namespace ShareMe.Controllers
         [HttpDelete("{fileName}")]
         public void Delete(string fileName, string token)
         {
+        }
+
+        private static bool IsMultipartContentType(string contentType)
+        {
+            return
+                !string.IsNullOrEmpty(contentType) &&
+                contentType.IndexOf("multipart/", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string GetBoundary(string contentType)
+        {
+            var elements = contentType.Split(' ');
+            var element = elements.Where(entry => entry.StartsWith("boundary=")).First();
+            var boundary = element.Substring("boundary=".Length);
+            // Remove quotes
+            if (boundary.Length >= 2 && boundary[0] == '"' &&
+                boundary[boundary.Length - 1] == '"')
+            {
+                boundary = boundary.Substring(1, boundary.Length - 2);
+            }
+            return boundary;
+        }
+
+        private string GetFileName(string contentDisposition)
+        {
+            return contentDisposition
+                .Split(';')
+                .SingleOrDefault(part => part.Contains("filename"))
+                .Split('=')
+                .Last()
+                .Trim('"');
         }
     }
 }
