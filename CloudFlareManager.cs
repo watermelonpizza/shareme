@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ShareMe 
 {
-    public static class CloudFlairManager
+    public static class CloudFlareManager
     {
         private const string CF_API_BASE_URL = "https://api.cloudflare.com/client/v4";
 

@@ -15,9 +15,9 @@ namespace ShareMe
         public string[] ExtensionBlacklist { get; set; }
         public long MaxUploadSizeInBytes { get; set; }
 
-        public string CloudFlairZone { get; set; }
-        public string CloudFlairEmail { get; set; }
-        public string CloudFlairKey { get; set; }
+        public string CloudFlareZone { get; set; }
+        public string CloudFlareEmail { get; set; }
+        public string CloudFlareKey { get; set; }
 
         public string PhysicalUploadPath
         {

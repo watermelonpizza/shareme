@@ -78,12 +78,12 @@ namespace ShareMe.Controllers
                 {
                     if (result.Value)
                     {
-                        await CloudFlairManager.PurgeCache(
-                            _appSettings.Value.CloudFlairZone,
-                            _appSettings.Value.CloudFlairEmail,
-                            _appSettings.Value.CloudFlairKey,
+                        await CloudFlareManager.PurgeCache(
+                            _appSettings.Value.CloudFlareZone,
+                            _appSettings.Value.CloudFlareEmail,
+                            _appSettings.Value.CloudFlareKey,
                             $"{_appSettings.Value.HostUrl}{_appSettings.Value.FileRequestPath}/{fileName}");
-                            
+
                         return ReturnMessage.OkFileDeleted($"file '{fileName}' successfuly deleted");
                     }
                     else

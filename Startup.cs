@@ -45,9 +45,9 @@ namespace ShareMe
                 }
                 catch (Exception) { }
 
-                config.CloudFlairZone = Configuration["SHAREME_CLOUDFLAIR_ZONE"] ?? config.CloudFlairZone;
-                config.CloudFlairEmail = Configuration["SHAREME_CLOUDFLAIR_EMAIL"] ?? config.CloudFlairEmail;
-                config.CloudFlairKey = Configuration["SHAREME_CLOUDFLAIR_KEY"] ?? config.CloudFlairKey;
+                config.CloudFlareZone = Configuration["SHAREME_CLOUDFLARE_ZONE"] ?? config.CloudFlareZone;
+                config.CloudFlareEmail = Configuration["SHAREME_CLOUDFLARE_EMAIL"] ?? config.CloudFlareEmail;
+                config.CloudFlareKey = Configuration["SHAREME_CLOUDFLARE_KEY"] ?? config.CloudFlareKey;
             });
 
             services.Configure<FormOptions>(options => 
