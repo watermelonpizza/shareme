@@ -44,6 +44,10 @@ namespace ShareMe
                     config.MaxUploadSizeInBytes = Convert.ToInt64(Configuration["SHAREME_MAX_UPLOAD_SIZE"]);                    
                 }
                 catch (Exception) { }
+
+                config.CloudFlairZone = Configuration["SHAREME_CLOUDFLAIR_ZONE"] ?? config.CloudFlairZone;
+                config.CloudFlairEmail = Configuration["SHAREME_CLOUDFLAIR_EMAIL"] ?? config.CloudFlairEmail;
+                config.CloudFlairKey = Configuration["SHAREME_CLOUDFLAIR_KEY"] ?? config.CloudFlairKey;
             });
 
             services.Configure<FormOptions>(options => 

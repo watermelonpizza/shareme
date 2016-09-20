@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 
 namespace ShareMe.Controllers
 {
@@ -42,7 +44,6 @@ namespace ShareMe.Controllers
                             }
 
                             string fileName = await FileManager.WriteFile(fileExtension, file, _appSettings.Value.PhysicalUploadPath);
-                            
                             fileUrls.Add($"{_appSettings.Value.HostUrl}{_appSettings.Value.FileRequestPath}/{fileName}");
                         }
 
@@ -63,7 +64,7 @@ namespace ShareMe.Controllers
         }
 
         [HttpDelete("api/files/{filename}")]
-        public string Delete(string fileName, string token)
+        public async Task<string> Delete(string fileName, string token)
         {      
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -76,7 +77,15 @@ namespace ShareMe.Controllers
                 if (result.HasValue)
                 {
                     if (result.Value)
+                    {
+                        await CloudFlairManager.PurgeCache(
+                            _appSettings.Value.CloudFlairZone,
+                            _appSettings.Value.CloudFlairEmail,
+                            _appSettings.Value.CloudFlairKey,
+                            $"{_appSettings.Value.HostUrl}{_appSettings.Value.FileRequestPath}/{fileName}");
+                            
                         return ReturnMessage.OkFileDeleted($"file '{fileName}' successfuly deleted");
+                    }
                     else
                         return ReturnMessage.ErrorMessage($"file '{fileName}' doesn't exist");
                 }
