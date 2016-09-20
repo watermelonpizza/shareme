@@ -1,15 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.FileProviders;
-using System.IO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 
 namespace ShareMe
@@ -41,6 +38,17 @@ namespace ShareMe
                 config.UploadFolder = Configuration["SHAREME_UPLOAD_FOLDER"]?.Trim() ?? config.UploadFolder;
                 config.FileRequestPath = Configuration["SHAREME_FILE_REQUEST_PATH"]?.Trim() ?? config.FileRequestPath;
                 config.ExtensionBlacklist = Configuration["SHAREME_EXTENSION_BLACKLIST"]?.Split(',') ?? config.ExtensionBlacklist;
+                
+                try
+                {
+                    config.MaxUploadSizeInBytes = Convert.ToInt64(Configuration["SHAREME_MAX_UPLOAD_SIZE"]);                    
+                }
+                catch (Exception) { }
+            });
+
+            services.Configure<FormOptions>(options => 
+            {
+                options.MultipartBodyLengthLimit = Configuration.GetValue<long>(nameof(AppSettings.MaxUploadSizeInBytes));
             });
 
             // Add framework services.

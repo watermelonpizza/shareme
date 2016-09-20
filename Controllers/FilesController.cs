@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.WebUtilities;
 using System.IO;
 
 namespace ShareMe.Controllers
@@ -18,47 +17,15 @@ namespace ShareMe.Controllers
             _appSettings = appSettings;
         }
 
-        // POST api/files
-        [Route("api/upload")]
-        [HttpPost]
+        [HttpPost("api/files")]
         public async Task<string> Post(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 return ReturnMessage.ErrorMessage("token not supplied");
             }
-
-            if (IsMultipartContentType(Request.ContentType))
-            {
-                var boundary = GetBoundary(Request.ContentType);
-                var reader = new MultipartReader(boundary, Request.Body);
-                var section = await reader.ReadNextSectionAsync();
-                string fileName = null;
-
-                while (section != null)
-                {
-                    // process each image
-                    const int chunkSize = 1024;
-                    var buffer = new byte[chunkSize];
-                    var bytesRead = 0;
-                    fileName = GetFileName(section.ContentDisposition);
-
-                    using (var stream = new FileStream(fileName, FileMode.Append))
-                    {
-                        do
-                        {
-                            bytesRead = await section.Body.ReadAsync(buffer, 0, buffer.Length);
-                            stream.Write(buffer, 0, bytesRead);
-
-                        } while (bytesRead > 0);
-                    }
-
-                    section = await reader.ReadNextSectionAsync();
-                }
-
-                return ReturnMessage.OkFileUploaded("file uploaded", new string[] { fileName });
-            }
-            else if (Request.HasFormContentType)
+            
+            if (Request.HasFormContentType)
             {
                 if (_appSettings.Value.AdminKey.Equals(token) || TokenManager.HasToken(token))
                 {
@@ -95,41 +62,31 @@ namespace ShareMe.Controllers
             return ReturnMessage.ErrorMessage("no files or incorrect http post format encountered");
         }
 
-        // DELETE api/values/12345.jpg
-        [HttpDelete("{fileName}")]
-        public void Delete(string fileName, string token)
-        {
-        }
-
-        private static bool IsMultipartContentType(string contentType)
-        {
-            return
-                !string.IsNullOrEmpty(contentType) &&
-                contentType.IndexOf("multipart/", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static string GetBoundary(string contentType)
-        {
-            var elements = contentType.Split(' ');
-            var element = elements.Where(entry => entry.StartsWith("boundary=")).First();
-            var boundary = element.Substring("boundary=".Length);
-            // Remove quotes
-            if (boundary.Length >= 2 && boundary[0] == '"' &&
-                boundary[boundary.Length - 1] == '"')
+        [HttpDelete("api/files/{filename}")]
+        public string Delete(string fileName, string token)
+        {      
+            if (string.IsNullOrWhiteSpace(token))
             {
-                boundary = boundary.Substring(1, boundary.Length - 2);
+                return ReturnMessage.ErrorMessage("token not supplied");
             }
-            return boundary;
-        }
-
-        private string GetFileName(string contentDisposition)
-        {
-            return contentDisposition
-                .Split(';')
-                .SingleOrDefault(part => part.Contains("filename"))
-                .Split('=')
-                .Last()
-                .Trim('"');
+            
+            if (_appSettings.Value.AdminKey.Equals(token) || TokenManager.HasToken(token))
+            {
+                bool? result = FileManager.DeleteFile(fileName, _appSettings.Value.PhysicalUploadPath);
+                if (result.HasValue)
+                {
+                    if (result.Value)
+                        return ReturnMessage.OkFileDeleted($"file '{fileName}' successfuly deleted");
+                    else
+                        return ReturnMessage.ErrorMessage($"file '{fileName}' doesn't exist");
+                }
+                else
+                    return ReturnMessage.ErrorMessage("could not delete file");
+            }
+            else
+            {
+                return ReturnMessage.ErrorMessage("unauthorised: invalid token");
+            }
         }
     }
 }

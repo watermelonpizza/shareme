@@ -13,6 +13,7 @@ namespace ShareMe
         public string FileRequestPath { get; set; }
         public string AdminKey { get; set; }
         public string[] ExtensionBlacklist { get; set; }
+        public long MaxUploadSizeInBytes { get; set; }
 
         public string PhysicalUploadPath
         {

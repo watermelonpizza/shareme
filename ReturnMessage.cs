@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ShareMe
 {
@@ -22,6 +17,14 @@ namespace ShareMe
                     Ok = true,
                     Message = message,
                     FileUrls = fileUrls
+                },
+                Program.JsonSettings);
+
+        public static string OkFileDeleted(string message)
+            => JsonConvert.SerializeObject(new ReturnMessage
+                {
+                    Ok = true,
+                    Message = message,
                 },
                 Program.JsonSettings);
 

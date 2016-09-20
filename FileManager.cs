@@ -37,6 +37,29 @@ namespace ShareMe
                 throw;
             }
         }
+
+        // Deletes a file, null for exception, true for deleted, false for not existing
+        public static bool? DeleteFile(string filename, string physicalUploadPath)
+        {
+            EnsureDirectory(physicalUploadPath);
+
+            try
+            {
+                if (File.Exists(Path.Combine(physicalUploadPath, filename)))
+                {
+                    File.Delete(Path.Combine(physicalUploadPath, filename));
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
         
         public static void EnsureDirectory(string uploadFolder)
         {
