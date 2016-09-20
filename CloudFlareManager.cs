@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace ShareMe 
 {
@@ -20,18 +21,37 @@ namespace ShareMe
 
                 using(HttpClient client = new HttpClient())
                 {
-                    var content = new StringContent(new 
-                    {
-                        files = uris
-                    }.ToString(), Encoding.UTF8, "application/json");
-                    
-                    client.DefaultRequestHeaders.Add("X-Auth-Email", email);
-                    client.DefaultRequestHeaders.Add("X-Auth-Key", key);
+                    var content = new StringContent(
+                        JsonConvert.SerializeObject(
+                            new 
+                            {
+                                files = uris
+                            }),
+                        Encoding.UTF8,
+                        "application/json");
 
                     client.BaseAddress = new Uri(CF_API_BASE_URL);
-                    var result = await client.PostAsync($"/zones/{zone}/purge_cache", content);
 
-                    Console.WriteLine(await result.Content.ReadAsStringAsync());
+                    HttpRequestMessage request = 
+                        new HttpRequestMessage(
+                            HttpMethod.Delete,
+                            $"/zones/{zone}/purge_cache");
+
+                    request.Headers.Add("X-Auth-Email", email);
+                    request.Headers.Add("X-Auth-Key", key);
+                    request.Content = content;
+
+                    HttpResponseMessage result = null;
+                    try
+                    {
+                        result = await client.SendAsync(request);
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
+                    Console.WriteLine(await result?.Content.ReadAsStringAsync());
                 }
             }
         }
