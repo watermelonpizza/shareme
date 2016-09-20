@@ -29,7 +29,7 @@ namespace ShareMe
                     client.DefaultRequestHeaders.Add("X-Auth-Key", key);
 
                     client.BaseAddress = new Uri(CF_API_BASE_URL);
-                    var result = await client.PostAsync($"/zone/{zone}/purge_cache", content);
+                    var result = await client.PostAsync($"/zones/{zone}/purge_cache", content);
 
                     Console.WriteLine(await result.Content.ReadAsStringAsync());
                 }
